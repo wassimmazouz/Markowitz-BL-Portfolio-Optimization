@@ -22,33 +22,23 @@ This repo is intentionally simple: a single **Jupyter notebook** implements all 
 
 ### 1. Markowitz Mean–Variance Optimization
 
-The goal is to select portfolio weights \( w \) that balance expected return and risk.
+The goal is to select portfolio weights $w$ that balance expected return and risk.
 
 - Expected portfolio return:
-\[
-\mu_p = w^\top \mu
-\]
+$$\mu_p = w^\top \mu$$
 
 - Portfolio variance:
-\[
-\sigma_p^2 = w^\top \Sigma w
-\]
+$$\sigma_p^2 = w^\top \Sigma w$$
 
 #### Problems of interest
 - **Minimum variance:**
-\[
-\min_w \; w^\top \Sigma w \quad \text{s.t.} \; \mathbf{1}^\top w = 1, \; w \geq 0 \text{ (if long-only)}
-\]
+$$\min_w \; w^\top \Sigma w \quad \text{s.t.} \; \mathbf{1}^\top w = 1,\; w \ge 0 \text{ (if long-only)}$$
 
 - **Maximum Sharpe ratio:**
-\[
-\max_w \; \frac{w^\top \mu - r_f}{\sqrt{w^\top \Sigma w}} \quad \text{s.t.} \; \mathbf{1}^\top w = 1
-\]
+$$\max_w \; \frac{w^\top \mu - r_f}{\sqrt{w^\top \Sigma w}} \quad \text{s.t.} \; \mathbf{1}^\top w = 1$$
 
 - **Target return:**
-\[
-\min_w \; w^\top \Sigma w \quad \text{s.t.} \; w^\top \mu \geq \mu^*, \; \mathbf{1}^\top w = 1
-\]
+$$\min_w \; w^\top \Sigma w \quad \text{s.t.} \; w^\top \mu \ge \mu^*,\; \mathbf{1}^\top w = 1$$
 
 ---
 
@@ -57,47 +47,41 @@ The goal is to select portfolio weights \( w \) that balance expected return and
 The BL model blends equilibrium returns with investor views.
 
 - **Implied equilibrium returns:**
-\[
-\pi = \delta \Sigma w_m
-\]
-where \( \delta \) = risk aversion, \( \Sigma \) = covariance, \( w_m \) = market-cap weights.
+$$\pi = \delta \Sigma w_m$$
+where $\delta$ is risk aversion, $\Sigma$ the covariance, and $w_m$ the market-cap weights.
 
 - **Views formulation:**
-\[
-P \mu = Q
-\]
-where \( P \) is a pick matrix selecting assets, \( Q \) are view returns.
+$$P \mu = Q$$
+where $P$ is a pick matrix selecting assets and $Q$ are view returns (absolute or relative).
 
 - **Posterior distribution of returns:**
-\[
-\mu_{BL} = \left[(\tau \Sigma)^{-1} + P^\top \Omega^{-1} P \right]^{-1} \left[(\tau \Sigma)^{-1} \pi + P^\top \Omega^{-1} Q \right]
-\]
-where \( \tau \) is a scaling factor and \( \Omega \) the view uncertainty.
+$$
+\mu_{BL} = \left[(\tau \Sigma)^{-1} + P^\top \Omega^{-1} P \right]^{-1}
+\left[(\tau \Sigma)^{-1} \pi + P^\top \Omega^{-1} Q \right]
+$$
+where $\tau$ is a scaling factor and $\Omega$ the view-uncertainty covariance (often diagonal).
 
 - The posterior covariance is also adjusted:
-\[
-\Sigma_{BL} = \Sigma + \left[(\tau \Sigma)^{-1} + P^\top \Omega^{-1} P \right]^{-1}
-\]
+$$\Sigma_{BL} = \Sigma + \left[(\tau \Sigma)^{-1} + P^\top \Omega^{-1} P \right]^{-1}$$
 
 ---
 
 ### 3. Quadratic Transaction Costs (QTC)
 
-When rebalancing from current weights \( w_0 \) to new weights \( w \), trading costs matter.
+When rebalancing from current weights $w_0$ to new weights $w$, trading costs matter.
 
-- Let trades be \( x = w - w_0 \).  
+- Let trades be $x = w - w_0$.  
 - Transaction costs are modeled as quadratic:
-\[
-c(x) = \tfrac{1}{2} x^\top \Lambda x
-\]
-with diagonal \( \Lambda \) encoding per-asset liquidity/impact.
+$$c(x) = \tfrac{1}{2} x^\top \Lambda x$$
+with diagonal $\Lambda$ encoding per-asset liquidity/impact.
 
 #### Optimization with QTC
-\[
-\max_x \; \lambda_\mu \, (\mu^\top (w_0 + x)) - \tfrac{\lambda_r}{2} (w_0 + x)^\top \Sigma (w_0 + x) - \tfrac{\lambda_c}{2} x^\top \Lambda x
-\]
-s.t. \( \mathbf{1}^\top (w_0 + x) = 1 \), and bounds on turnover or trades.
-
+$$
+\max_x \; \lambda_\mu \, \mu^\top (w_0 + x)
+- \tfrac{\lambda_r}{2} (w_0 + x)^\top \Sigma (w_0 + x)
+- \tfrac{\lambda_c}{2} x^\top \Lambda x
+$$
+subject to the budget constraint $ \mathbf{1}^\top (w_0 + x) = 1 $ and optional bounds on turnover or per-asset trades.  
 This is a convex quadratic program.
 
 ---
@@ -111,7 +95,7 @@ This is a convex quadratic program.
 
 - **Black–Litterman**
   - Reverse optimization to implied returns from benchmark weights
-  - View blending via \( \tau \) and \( \Omega \) (absolute & relative views)
+  - View blending via $ \tau $ and $ \Omega $ (absolute & relative views)
   - Run Markowitz on BL posterior mean
 
 - **Quadratic Transaction Costs (QTC)**
@@ -132,18 +116,18 @@ The notebook is organized into the following **sections** (cells):
 1. **Imports & Config**
    - Set random seed, frequency (`daily/weekly/monthly`), risk-free rate, plotting style
 2. **Load Data**
-   - Read `data/prices.csv` → returns (simple or log), compute \( \mu \), \( \Sigma \)
-   - Annualize using factor {252, 52, 12}
+   - Read `data/prices.csv` → returns (simple or log), compute $ \mu $ and $ \Sigma $
+   - Annualize using factor $\{252, 52, 12\}$
 3. **Markowitz Functions**
    - `min_variance`, `max_sharpe`, `target_return`, `efficient_frontier`
 4. **Run Markowitz Examples**
    - Print weights & stats; plot efficient frontier + CML
 5. **Black–Litterman**
-   - Parse `benchmark.csv` & `views.csv` → build \( \pi, P, Q, \Omega \)
-   - Compute \( \mu_{BL} \), re-run Markowitz on posterior mean
+   - Parse `benchmark.csv` & `views.csv` → build $ \pi, P, Q, \Omega $
+   - Compute $ \mu_{BL} $, re-run Markowitz on posterior mean
 6. **Quadratic Transaction Costs**
-   - Define current weights \( w_0 \), cost diag \( \Lambda \), multipliers \( \lambda_r, \lambda_\mu, \lambda_c \)
-   - Solve convex QP for trades \( x \), output new weights \( w = w_0 + x \)
+   - Define current weights $ w_0 $, cost diag $ \Lambda $, multipliers $ \lambda_r, \lambda_\mu, \lambda_c $
+   - Solve convex QP for trades $ x $, output new weights $ w = w_0 + x $
 7. **Save Outputs**
    - Export weights (`out/*.csv`), frontier points, and plots (`out/*.png`)
 
@@ -163,12 +147,12 @@ Each section is self-contained; you can run only what you need.
 1. Provide `data/benchmark.csv` (market weights).
 2. Write your views in `data/views.csv`.
 3. Pick `tau` (e.g., 0.05) and `risk_aversion` (e.g., 3.0).
-4. Compute posterior mean \( \mu_{BL} \), then run Max-Sharpe or desired target-return.
+4. Compute posterior mean $ \mu_{BL} $, then run Max-Sharpe or desired target-return.
 
 ### C) Quadratic Transaction Costs — Rebalancing
-1. Define `w0` (current weights) inline or load from CSV.
+1. Define $ w_0 $ (current weights) inline or load from CSV.
 2. Choose trading-cost diagonal (e.g., `cost_diag = [0.002, ...]`).
-3. Set multipliers: `lambda_r`, `lambda_mu`, `lambda_c`.
+3. Set multipliers: $ \lambda_r $, $ \lambda_\mu $, $ \lambda_c $.
 4. Add turnover / per-asset trade bounds if needed and solve; export new weights.
 
 ---
