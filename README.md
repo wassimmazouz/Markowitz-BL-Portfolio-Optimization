@@ -3,18 +3,6 @@
 
 This repo is intentionally simple: a single **Jupyter notebook** implements all models end-to-end, and a `data/` folder holds inputs and (optionally) outputs. No extra Python modules—everything runs from the notebook.
 
----
-
-## 📁 Repository Layout
-
-```
-.
-├─ data/
-│  ├─ prices.csv            # required: historical prices (Date + assets)
-│  ├─ benchmark.csv         # optional: market weights for BL (Ticker,Weight)
-│  └─ views.csv             # optional: BL views (see format below)
-└─ PortfolioOptimization.ipynb   # the only notebook (all code lives here)
-```
 
 ---
 
